@@ -11,27 +11,45 @@ export const getAllNotes = async (req, res, next) => {
 };
 
 export const getNoteById = async (req, res, next) => {
-  const { id } = req.params;
-  const note = await Note.findById(id);
-  if (!note) {
-    throw createError(404, 'Note not found');
-  }
+  try {
+    const { noteId } = req.params;
+    const note = await Note.findById(noteId);
 
-  res.status(200).json({
-    status: 200,
-    message: `Successfully found note with id ${id}!`,
-    data: note,
-  });
+    if (!note) {
+      throw createError(404, 'Note not found');
+    }
+
+    res.status(200).json(note);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const createNote = async (req, res, next) => {
-  const newNote = await Note.create(req.body);
+  try {
+    const newNote = await Note.create(req.body);
+    res.status(201).json(newNote);
+  } catch (error) {
+    next(error);
+  }
+};
 
-  res.status(201).json({
-    status: 201,
-    message: `Successfully created a note!`,
-    data: newNote,
-  });
+export const updateNote = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const updatedNote = await Note.findByIdAndUpdate(noteId, req.body, {
+      returnDocument: 'after',
+      runValidators: true,
+    });
+
+    if (!updatedNote) {
+      throw createError(404, 'Note not found');
+    }
+
+    res.status(200).json(updatedNote);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const deleteNote = async (req, res, next) => {
@@ -47,22 +65,4 @@ export const deleteNote = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-export const updateNote = async (req, res, next) => {
-  const { id } = req.params;
-  const updatedNote = await Note.findByIdAndUpdate(id, req.body, {
-    returnDocument: 'after',
-    runValidators: true,
-  });
-
-  if (!updatedNote) {
-    throw createError(404, 'Note not found');
-  }
-
-  res.status(200).json({
-    status: 200,
-    message: `Successfully patched a note!`,
-    data: updatedNote,
-  });
 };
