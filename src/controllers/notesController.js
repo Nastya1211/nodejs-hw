@@ -1,5 +1,5 @@
 import { Note } from '../models/note.js';
-import createHttpError from 'http-errors';
+import createError from 'http-errors';
 
 export const getAllNotes = async (req, res, next) => {
   try {
@@ -11,26 +11,27 @@ export const getAllNotes = async (req, res, next) => {
 };
 
 export const getNoteById = async (req, res, next) => {
-  try {
-    const { noteId } = req.params;
-    const note = await Note.findById(noteId);
-    res.status(200).json(note);
-
-    if (!note) {
-      throw createHttpError(404, 'Note not found');
-    }
-  } catch (error) {
-    next(error);
+  const { id } = req.params;
+  const note = await Note.findById(id);
+  if (!note) {
+    throw createError(404, 'Note not found');
   }
+
+  res.status(200).json({
+    status: 200,
+    message: `Successfully found note with id ${id}!`,
+    data: note,
+  });
 };
 
 export const createNote = async (req, res, next) => {
-  try {
-    const newNotes = await Note.create(req.body);
-    res.status(200).json(newNotes);
-  } catch (error) {
-    next(error);
-  }
+  const newNote = await Note.create(req.body);
+
+  res.status(201).json({
+    status: 201,
+    message: `Successfully created a note!`,
+    data: newNote,
+  });
 };
 
 export const deleteNote = async (req, res, next) => {
@@ -39,7 +40,7 @@ export const deleteNote = async (req, res, next) => {
     const deletedNote = await Note.findByIdAndDelete(noteId);
 
     if (!deletedNote) {
-      throw createHttpError(404, 'Note not found');
+      throw createError(404, 'Note not found');
     }
 
     res.status(200).json(deletedNote);
@@ -49,19 +50,19 @@ export const deleteNote = async (req, res, next) => {
 };
 
 export const updateNote = async (req, res, next) => {
-  try {
-    const { noteId } = req.params;
-    const updatedNote = await Note.findByIdAndUpdate(noteId, req.body, {
-      new: true,
-      runValidators: true,
-    });
+  const { id } = req.params;
+  const updatedNote = await Note.findByIdAndUpdate(id, req.body, {
+    returnDocument: 'after',
+    runValidators: true,
+  });
 
-    if (!updatedNote) {
-      throw createHttpError(404, 'Note not found');
-    }
-
-    res.status(200).json(updatedNote);
-  } catch (error) {
-    next(error);
+  if (!updatedNote) {
+    throw createError(404, 'Note not found');
   }
+
+  res.status(200).json({
+    status: 200,
+    message: `Successfully patched a note!`,
+    data: updatedNote,
+  });
 };
