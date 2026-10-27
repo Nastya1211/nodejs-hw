@@ -6,6 +6,7 @@ import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRouter from './routes/notesRoutes.js';
+import { errors } from 'celebrate';
 
 dotenv.config();
 
@@ -23,6 +24,8 @@ export const setupServer = async () => {
   app.use(notesRouter);
 
   app.use(notFoundHandler);
+
+  app.use(errors());
 
   app.use(errorHandler);
 
