@@ -2,18 +2,21 @@ import createHttpError from 'http-errors';
 import { User } from '../models/user.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
-export async function updateUserAvatarController(req, res, next) {
+export async function updateUserAvatar(req, res, next) {
   try {
     if (!req.file) {
       throw createHttpError(400, 'No file');
     }
 
-    const avatarUrl = await saveFileToCloudinary(req.file);
+    const uploadResult = await saveFileToCloudinary(
+      req.file.buffer,
+      req.user._id,
+    );
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
-      { avatar: avatarUrl },
-      { new: true },
+      { avatar: uploadResult.secure_url },
+      { returnDocument: 'after' },
     );
 
     if (!updatedUser) {
@@ -21,11 +24,7 @@ export async function updateUserAvatarController(req, res, next) {
     }
 
     res.status(200).json({
-      status: 200,
-      message: 'Successfully updated avatar!',
-      data: {
-        url: updatedUser.avatar,
-      },
+      url: updatedUser.avatar,
     });
   } catch (error) {
     next(error);
