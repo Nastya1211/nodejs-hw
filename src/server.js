@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
@@ -20,11 +21,10 @@ export const setupServer = async () => {
 
   app.use(logger);
   app.use(express.json());
+  app.use(cookieParser());
   app.use(cors());
 
   app.use(authRouter);
-  app.use(notesRouter);
-
   app.use(notesRouter);
 
   app.use(notFoundHandler);
