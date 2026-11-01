@@ -7,7 +7,7 @@ import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRouter from './routes/notesRoutes.js';
-import userRoutes from './routers/users.js';
+import userRouter from './routes/userRoutes.js';
 import { errors } from 'celebrate';
 import authRouter from './routes/authRoutes.js';
 
@@ -15,7 +15,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
-export const setupServer = async () => {
+const setupServer = async () => {
   await connectMongoDB();
 
   const app = express();
@@ -25,9 +25,9 @@ export const setupServer = async () => {
   app.use(cookieParser());
   app.use(cors());
 
-  app.use('/auth', authRouter);
+  app.use(authRouter);
   app.use(notesRouter);
-  app.use('/users', userRoutes);
+  app.use(userRouter);
 
   app.use(notFoundHandler);
 
