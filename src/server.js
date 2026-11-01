@@ -7,6 +7,7 @@ import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRouter from './routes/notesRoutes.js';
+import userRoutes from './routers/users.js';
 import { errors } from 'celebrate';
 import authRouter from './routes/authRoutes.js';
 
@@ -24,8 +25,9 @@ export const setupServer = async () => {
   app.use(cookieParser());
   app.use(cors());
 
-  app.use(authRouter);
+  app.use('/auth', authRouter);
   app.use(notesRouter);
+  app.use('/users', userRoutes);
 
   app.use(notFoundHandler);
 
